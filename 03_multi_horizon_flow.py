@@ -241,10 +241,12 @@ class ONIMultiHorizonFlow(FlowSpec):
             self.model_bytes = pickle.dumps({"selector": selector, "model": model})
             self.model_format = "pickle"
         else:  # baseline, candidate — XGBoost models
-            import io
-            buf = io.BytesIO()
-            model.save_model(buf)
-            self.model_bytes = buf.getvalue()
+            import tempfile
+            import os
+            tmp = os.path.join(tempfile.gettempdir(), "xgb_tmp_model.json")
+            model.save_model(tmp)
+            with open(tmp, "rb") as f:
+                self.model_bytes = f.read()
             self.model_format = "xgboost"
 
         # Feature importances (where available)

@@ -147,8 +147,12 @@ class ONIInferenceFlow(FlowSpec):
                     pred = obj.predict(X_latest)[0]
             else:  # xgboost
                 model = xgb.XGBRegressor(**xgb_params)
-                import io
-                model.load_model(io.BytesIO(model_bytes))
+                import tempfile as _tf
+                import os as _os
+                tmp = _os.path.join(_tf.gettempdir(), "xgb_inf_model.json")
+                with open(tmp, "wb") as f:
+                    f.write(model_bytes)
+                model.load_model(tmp)
                 pred = model.predict(X_latest)[0]
 
             target_date = latest_date + pd.DateOffset(months=h)
